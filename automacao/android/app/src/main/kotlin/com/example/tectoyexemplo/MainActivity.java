@@ -7,9 +7,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.nfc.FormatException;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -20,11 +26,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 
+import br.com.tectoysunmisdk.tectoysunmisdk.KTectoySunmiPrinter;
 import br.com.tectoysunmisdk.tectoysunmisdk.TectoySunmiPrint;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -127,6 +135,7 @@ public class MainActivity extends FlutterActivity {
     private String valor = "";
     private String usb = "false";
     private String modalidade = "";
+
     private String parcelas = "";
     private Date dt = new Date();
     private Random r = new Random();
@@ -144,6 +153,16 @@ public class MainActivity extends FlutterActivity {
     private static final String CHANNEL = "samples.flutter.dev/gedi";
 
 
+    // NFC
+    private static final String NFC = "nfcsdk";
+    private NfcLeituraGravacao nfcLeituraGravacao;
+    private final String gravar = "gravar";
+    private final String ler = "ler";
+    private final String formatar = "formatar";
+    private final String leituraFormatacao = "leituraFormatacao";
+    private String nfc = "";
+
+
     public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
 
@@ -156,182 +175,316 @@ public class MainActivity extends FlutterActivity {
 
                     switch (call.method){
                         case showPrinterStatus:
-
-                            TectoySunmiPrint.getInstance().showPrinterStatus(getApplicationContext());
+                            if (getDeviceName().equals("SUNMI K2")){
+                                KTectoySunmiPrinter.getInstance().getStatus();
+                            }else {
+                                TectoySunmiPrint.getInstance().showPrinterStatus(getApplicationContext());
+                            }
                             break;
                         case controlLcd:
-                            TectoySunmiPrint.getInstance().controlLcd(1);
-                            TectoySunmiPrint.getInstance().controlLcd(2);
-                            TectoySunmiPrint.getInstance().controlLcd(4);
+                            if (getDeviceName().equals("SUNMI K2"))
+                            {
+
+                            }else {
+                                TectoySunmiPrint.getInstance().controlLcd(1);
+                                TectoySunmiPrint.getInstance().controlLcd(2);
+                                TectoySunmiPrint.getInstance().controlLcd(4);
+                            }
                             break;
                         case sendTextToLcd:
-                            TectoySunmiPrint.getInstance().sendTextToLcd();
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                TectoySunmiPrint.getInstance().sendTextToLcd();
+                            }
                             break;
                         case sendTextsToLcd:
-                            TectoySunmiPrint.getInstance().sendTextsToLcd();
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                TectoySunmiPrint.getInstance().sendTextsToLcd();
+                            }
                             break;
                         case sendPicToLcd:
-                            BitmapFactory.Options options = new BitmapFactory.Options();
-                            options.inScaled = false;
-                            options.inDensity = getApplicationContext().getResources().getDisplayMetrics().densityDpi;
-                            TectoySunmiPrint.getInstance().sendPicToLcd(BitmapFactory.decodeResource(getApplicationContext().getResources(),
-                                    br.com.tectoysunmisdk.tectoysunmisdk.R.drawable.mini, options));
-                            break;
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                BitmapFactory.Options options = new BitmapFactory.Options();
+                                options.inScaled = false;
+                                options.inDensity = getApplicationContext().getResources().getDisplayMetrics().densityDpi;
+                                TectoySunmiPrint.getInstance().sendPicToLcd(BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                                        br.com.tectoysunmisdk.tectoysunmisdk.R.drawable.mini, options));
+
+                            }
+                        break;
                         case scanner:
                             break;
                         case printonelabel:
-                            texto = call.argument("texto");
-                            data = call.argument("data");
-                            code = call.argument("code");
-                            TectoySunmiPrint.getInstance().printOneLabel(texto, data, code);
-                            break;
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                texto = call.argument("texto");
+                                data = call.argument("data");
+                                code = call.argument("code");
+                                TectoySunmiPrint.getInstance().printOneLabel(texto, data, code);
+                            }
+                          break;
                         case printmultilabel:
-                            texto = call.argument("texto");
-                            data = call.argument("data");
-                            code = call.argument("code");
-                            TectoySunmiPrint.getInstance().printMultiLabel(5, texto, data, code);
-                            break;
+                            if (getDeviceName().equals("SUNMI K2")){
+                         }else {
+                                texto = call.argument("texto");
+                                data = call.argument("data");
+                                code = call.argument("code");
+                                TectoySunmiPrint.getInstance().printMultiLabel(5, texto, data, code);
+
+                            }
+                         break;
                         case setInitiServiceTecToySunmiSDK:
-                            TectoySunmiPrint.getInstance().initSunmiPrinterService(getApplicationContext());
+                            if (getDeviceName().equals("SUNMI K2")){
+                                KTectoySunmiPrinter.getInstance().connectKPrintService(getApplicationContext());
+                            }else {
+                                TectoySunmiPrint.getInstance().initSunmiPrinterService(getApplicationContext());
+                            }
                             break;
                         case setInitPrint:
+                            if (getDeviceName().equals("SUNMI K2")){
+                            }else {
+                                TectoySunmiPrint.getInstance().initPrinter();
+                            }
 
-                            TectoySunmiPrint.getInstance().initPrinter();
                             break;
                         case setAlignment:
-                            alinhamento = call.argument("alinhamento");
-                            TectoySunmiPrint.getInstance().setAlign(alinhamento);
+                            if (getDeviceName().equals("SUNMI K2")){
+                            }else {
+                                alinhamento = call.argument("alinhamento");
+                                TectoySunmiPrint.getInstance().setAlign(alinhamento);
+                            }
+
                             break;
                         case printStyleBold:
-                            boolean bold = call.argument("status");
-                            TectoySunmiPrint.getInstance().printStyleBold(bold);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                boolean bold = call.argument("status");
+                                TectoySunmiPrint.getInstance().printStyleBold(bold);
+                            }
                             break;
                         case printStyleUnderLine:
-                            boolean underline = call.argument("status");
-                            TectoySunmiPrint.getInstance().printStyleUnderLine(underline);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                boolean underline = call.argument("status");
+                                TectoySunmiPrint.getInstance().printStyleUnderLine(underline);
+                            }
                             break;
                         case printStyleAntiWhite:
-                            boolean antiWhite = call.argument("status");
-                            TectoySunmiPrint.getInstance().printStyleAntiWhite(antiWhite);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                boolean antiWhite = call.argument("status");
+                                TectoySunmiPrint.getInstance().printStyleAntiWhite(antiWhite);
+                            }
+
                             break;
                         case printStyleDoubleHeight:
-                            boolean DoubleHeight = call.argument("status");
-                            TectoySunmiPrint.getInstance().printStyleDoubleHeight(DoubleHeight);
-                            break;
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                boolean DoubleHeight = call.argument("status");
+                                TectoySunmiPrint.getInstance().printStyleDoubleHeight(DoubleHeight);
+                            }
+                         break;
                         case printStyleDoubleWidth:
-                            boolean DoubleWidth = call.argument("status");
-                            TectoySunmiPrint.getInstance().printStyleDoubleWidth(DoubleWidth);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                boolean DoubleWidth = call.argument("status");
+                                TectoySunmiPrint.getInstance().printStyleDoubleWidth(DoubleWidth);
+                            }
+
                             break;
                         case printStyleItalic:
-                            boolean Italic = call.argument("status");
-                            TectoySunmiPrint.getInstance().printStyleItalic(Italic);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                boolean Italic = call.argument("status");
+                                TectoySunmiPrint.getInstance().printStyleItalic(Italic);
+                            }
                             break;
                         case printStyleInvert:
-                            boolean Invert = call.argument("status");
-                            TectoySunmiPrint.getInstance().printStyleInvert(Invert);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                boolean Invert = call.argument("status");
+                                TectoySunmiPrint.getInstance().printStyleInvert(Invert);
+                            }
                             break;
                         case printStyleStrikethRough:
-                            boolean StrikethRough = call.argument("status");
-                            TectoySunmiPrint.getInstance().printStyleStrikethRough(StrikethRough);
-                            break;
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                boolean StrikethRough = call.argument("status");
+                                TectoySunmiPrint.getInstance().printStyleStrikethRough(StrikethRough);
+                            }
+                         break;
                         case printStyleReset:
-                            TectoySunmiPrint.getInstance().printStyleReset();
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                TectoySunmiPrint.getInstance().printStyleReset();
+                            }
                             break;
                         case printText:
-                            text = call.argument("texto");
-                            TectoySunmiPrint.getInstance().printText(text);
+                            if (getDeviceName().equals("SUNMI K2")){
+                                KTectoySunmiPrinter.getInstance().text(text);
+                            }else {
+                                text = call.argument("texto");
+                                TectoySunmiPrint.getInstance().printText(text);
+                            }
                             break;
                         case printTextWithSize:
-                            text = call.argument("texto");
-                            size = call.argument("size");
-                            TectoySunmiPrint.getInstance().printTextWithSize(text, size);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                text = call.argument("texto");
+                                size = call.argument("size");
+                                TectoySunmiPrint.getInstance().printTextWithSize(text, size);
+                            }
                             break;
                         case printQr:
-                            text = call.argument("texto");
-                            size = call.argument("size");
-                            int errorLevel = call.argument("errorLevel");
-                            TectoySunmiPrint.getInstance().printQr(text, size, errorLevel);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                text = call.argument("texto");
+                                size = call.argument("size");
+                                int errorLevel = call.argument("errorLevel");
+                                TectoySunmiPrint.getInstance().printQr(text, size, errorLevel);
+                            }
                             break;
                         case printDoubleQRCode:
-                            text = call.argument("texto");
-                            String text2 = call.argument("texto");
-                            size = call.argument("size");
-                            int errorLevel2 = call.argument("errorLevel");
-                            TectoySunmiPrint.getInstance().printDoubleQRCode(text, text2, size, errorLevel2);
-                            break;
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                text = call.argument("texto");
+                                String text2 = call.argument("texto");
+                                size = call.argument("size");
+                                int errorLevel2 = call.argument("errorLevel");
+                                TectoySunmiPrint.getInstance().printDoubleQRCode(text, text2, size, errorLevel2);
+                            }
+                        break;
                         case printerStatus:
-                            result.success(TectoySunmiPrint.getInstance().printerStatus());
-                            break;
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                result.success(TectoySunmiPrint.getInstance().printerStatus());
+                            }
+                           break;
                         case cutpaper:
-                            TectoySunmiPrint.getInstance().cutpaper();
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                TectoySunmiPrint.getInstance().cutpaper();
+                            }
                             break;
                         case openCashBox:
-                            TectoySunmiPrint.getInstance().openCashBox();
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                TectoySunmiPrint.getInstance().openCashBox();
+                            }
                             break;
                         case feedPaper:
-                            TectoySunmiPrint.getInstance().feedPaper();
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                TectoySunmiPrint.getInstance().feedPaper();
+                            }
                             break;
                         case printBarCode:
-                            text = call.argument("texto");
-                            symbology = call.argument("symbology");
-                            height = call.argument("height");
-                            width = call.argument("width");
-                            textposition = call.argument("textposition");
-                            TectoySunmiPrint.getInstance().printBarCode(text, symbology, height, width, textposition);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                text = call.argument("texto");
+                                symbology = call.argument("symbology");
+                                height = call.argument("height");
+                                width = call.argument("width");
+                                textposition = call.argument("textposition");
+                                TectoySunmiPrint.getInstance().printBarCode(text, symbology, height, width, textposition);
+                            }
                             break;
                         case setFontSize:
-                            size = call.argument("size");
-                            TectoySunmiPrint.getInstance().setSize(size);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                size = call.argument("size");
+                                TectoySunmiPrint.getInstance().setSize(size);
+                            }
                             break;
                         case print3Line:
-                            TectoySunmiPrint.getInstance().print3Line();
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                TectoySunmiPrint.getInstance().print3Line();
+                            }
                             break;
                         case printAdvanceLines:
-                            int lines = call.argument("lines");
-                            TectoySunmiPrint.getInstance().printAdvanceLines(lines);
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                int lines = call.argument("lines");
+                                TectoySunmiPrint.getInstance().printAdvanceLines(lines);
+                            }
                             break;
                         case printTable:
-                            String Json = call.argument("json");
-                            try {
-                                JSONObject jsonObject = new JSONObject(Json);
-                                JSONArray c = jsonObject.getJSONArray("lines");
-                                for(int i =0; i < c.length(); i++){
-                                    JSONObject obj = c.getJSONObject(i);
-                                    JSONArray txts = obj.getJSONArray("txts");
-                                    JSONArray width = obj.getJSONArray("width");
-                                    JSONArray align = obj.getJSONArray("align");
+                            if (getDeviceName().equals("SUNMI K2")){
 
-                                    String[] text_vetor = new String[txts.length()];
-                                    int[] width_vetor = new int[width.length()];
-                                    int[] align_vetor = new int[align.length()];
+                            }else {
+                                String Json = call.argument("json");
+                                try {
+                                    JSONObject jsonObject = new JSONObject(Json);
+                                    JSONArray c = jsonObject.getJSONArray("lines");
+                                    for (int i = 0; i < c.length(); i++) {
+                                        JSONObject obj = c.getJSONObject(i);
+                                        JSONArray txts = obj.getJSONArray("txts");
+                                        JSONArray width = obj.getJSONArray("width");
+                                        JSONArray align = obj.getJSONArray("align");
 
-                                    for(int text_index = 0; text_index < txts.length(); text_index++){
-                                        text_vetor[text_index] = String.valueOf(txts.get(text_index));
+                                        String[] text_vetor = new String[txts.length()];
+                                        int[] width_vetor = new int[width.length()];
+                                        int[] align_vetor = new int[align.length()];
+
+                                        for (int text_index = 0; text_index < txts.length(); text_index++) {
+                                            text_vetor[text_index] = String.valueOf(txts.get(text_index));
+                                        }
+
+                                        for (int text_index = 0; text_index < width.length(); text_index++) {
+                                            width_vetor[text_index] = (int) width.get(text_index);
+                                        }
+
+                                        for (int text_index = 0; text_index < align.length(); text_index++) {
+                                            align_vetor[text_index] = (int) align.get(text_index);
+                                        }
+
+                                        TectoySunmiPrint.getInstance().printTable(text_vetor, width_vetor, align_vetor);
+
                                     }
-
-                                    for(int text_index = 0; text_index < width.length(); text_index++){
-                                        width_vetor[text_index] = (int) width.get(text_index);
-                                    }
-
-                                    for(int text_index = 0; text_index < align.length(); text_index++){
-                                        align_vetor[text_index] = (int) align.get(text_index);
-                                    }
-
-                                    TectoySunmiPrint.getInstance().printTable(text_vetor, width_vetor, align_vetor);
-
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                                TectoySunmiPrint.getInstance().printTable(null, null, null);
                             }
-                            TectoySunmiPrint.getInstance().printTable(null, null, null);
                             break;
                         case printBitmap:
-                            BitmapFactory.Options o = new BitmapFactory.Options();
-                            o.inTargetDensity = 160;
-                            o.inDensity = 160;
-                            Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), br.com.tectoysunmisdk.tectoysunmisdk.R.drawable.test1, o);
-                            TectoySunmiPrint.getInstance().printBitmap(scaleImage(bitmap));
-                        case getPlatformVersion:
+                            if (getDeviceName().equals("SUNMI K2")){
+
+                            }else {
+                                BitmapFactory.Options o = new BitmapFactory.Options();
+                                o.inTargetDensity = 160;
+                                o.inDensity = 160;
+                                Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), br.com.tectoysunmisdk.tectoysunmisdk.R.drawable.test1, o);
+                                TectoySunmiPrint.getInstance().printBitmap(scaleImage(bitmap));
+                            }
+                            case getPlatformVersion:
                             result.success("Android " + Build.VERSION.RELEASE);
                             break;
                     }
@@ -361,6 +514,29 @@ public class MainActivity extends FlutterActivity {
                             acao = "cancelamento";
                             this.valor = call.argument("valor");
                             execulteSTefCancelamento(valor);
+                            break;
+                    }
+                });
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), NFC)
+                .setMethodCallHandler((call, result) -> {
+                    _result = result;
+                    Map<String, String> map;
+                    Bundle bundle = new Bundle();
+                    Intent intent = null;
+                    switch (call.method){
+                        case gravar:
+                            break;
+                        case ler:
+                            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                            Ndef ndef = Ndef.get(tag);
+                            if(ndef == null){
+                                Toast.makeText(getApplicationContext(), "Tipo de cartão não suportado.", Toast.LENGTH_SHORT).show();
+                            }
+                            onNfcDetected(ndef);
+                            break;
+                        case formatar:
+                            break;
+                        case leituraFormatacao:
                             break;
                     }
                 });
@@ -536,17 +712,86 @@ public class MainActivity extends FlutterActivity {
                 TectoySunmiPrint.getInstance().cutpaper();
             }
         });
-        TectoySunmiPrint.getInstance().setSize(26);
+        TectoySunmiPrint.getInstance().setSize(20);
         TectoySunmiPrint.getInstance().setAlign(1);
         TectoySunmiPrint.getInstance().printStyleBold(true);
         TectoySunmiPrint.getInstance().printText(cupom.toString());
         TectoySunmiPrint.getInstance().print3Line();
 
-        TectoySunmiPrint.getInstance().feedPaper();
+        TectoySunmiPrint.getInstance().cutpaper();
+
         TectoySunmiPrint.getInstance().printText(teste.toString());
         TectoySunmiPrint.getInstance().print3Line();
+        TectoySunmiPrint.getInstance().feedPaper();
 
-        TectoySunmiPrint.getInstance().cutpaper();
         //alertDialog.show();
+    }
+    public static String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        if (model.startsWith(manufacturer)) {
+            return capitalize(model);
+        }
+        return capitalize(manufacturer) + " " + model;
+    }
+
+    private static String capitalize(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return str;
+        }
+        char[] arr = str.toCharArray();
+        boolean capitalizeNext = true;
+
+        StringBuilder phrase = new StringBuilder();
+        for (char c : arr) {
+            if (capitalizeNext && Character.isLetter(c)) {
+                phrase.append(Character.toUpperCase(c));
+                capitalizeNext = false;
+                continue;
+            } else if (Character.isWhitespace(c)) {
+                capitalizeNext = true;
+            }
+            phrase.append(c);
+        }
+
+        return phrase.toString();
+    }
+
+
+    // ----------------------------- NFC --------------------------------------
+
+    // Leitura
+    public void onNfcDetected(Ndef ndef){
+        nfcLeituraGravacao = new NfcLeituraGravacao(ndef.getTag());
+        readFromNFC(ndef);
+    }
+    private void readFromNFC(Ndef ndef) {
+
+        String mensagem;
+        String idCarao;
+        Long tempoExecucao;
+
+        try {
+
+            // Recebe a leitura das atuais mensagens cadastradas no cartão
+            mensagem = nfcLeituraGravacao.retornaMensagemGravadaCartao(ndef);
+            idCarao = nfcLeituraGravacao.idCartaoHexadecimal();
+
+            // Recebe o tempo total de execução da operação de leitura
+            tempoExecucao = nfcLeituraGravacao.retornaTempoDeExeculcaoSegundos();
+
+            if(mensagem.equals("")){
+                //mTvMessage.setText("Não existe mensagem gravada no cartão");
+            }else{
+               // mTvMessage.setText("ID Cartão: " + idCarao + "\n"+ mensagem+
+                //        "\n\nTempo de execução: "+String.format("%02d segundos", tempoExecucao));
+                TectoySunmiPrint.getInstance().printText(mensagem);
+            }
+
+        } catch (IOException | FormatException e) {
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG ).show();
+        } catch (Exception e) {
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG ).show();
+        }
     }
 }

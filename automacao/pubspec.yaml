@@ -46,6 +46,8 @@ dependencies:
   paygosdk:
     path: plugin/paygosdk
 
+  ext:
+    path: plugin/ext
 
   tectoysunmisdk:
     path: plugin/tectoysunmisdk
@@ -82,6 +84,7 @@ flutter:
     - assets/image/control.png
 
     #Menu Principal
+    - assets/image/function_nfc.png
     - assets/image/function_all.png
     - assets/image/function_barcode.png
     - assets/image/function_blackline.png

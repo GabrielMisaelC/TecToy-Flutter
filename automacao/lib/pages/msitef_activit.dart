@@ -36,11 +36,10 @@ class _Msitef_activitState extends State<Msitef_activit> {
 
   @override
   void initState() {
-    this.n_parcelas = "0";
-
+    this.n_parcelas = "1";
     this.valoroperacao = "";
-    this.tipo_pagamento = "";
-    this.tipo_parcelamento = "";
+    this.tipo_pagamento = "Não Definido";
+    this.tipo_parcelamento = "À Vista";
 
     super.initState();
   }

@@ -1,15 +1,21 @@
 package com.scanner.scanner;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import java.util.EventListener;
+
+import io.flutter.app.FlutterActivityEvents;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.PluginRegistry;
 
 /** ScannerPlugin */
 public class ScannerPlugin implements FlutterPlugin, MethodCallHandler {
@@ -48,4 +54,6 @@ public class ScannerPlugin implements FlutterPlugin, MethodCallHandler {
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     channel.setMethodCallHandler(null);
   }
+
+
 }

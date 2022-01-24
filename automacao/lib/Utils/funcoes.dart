@@ -6,6 +6,7 @@ import 'package:tectoyexemplo/pages/klamp.dart';
 import 'package:tectoyexemplo/pages/label.dart';
 import 'package:tectoyexemplo/pages/lcd.dart';
 import 'package:tectoyexemplo/pages/msitef_activit.dart';
+import 'package:tectoyexemplo/pages/nfc.dart';
 import 'package:tectoyexemplo/pages/scannerp2.dart';
 import 'package:tectoyexemplo/plugin/paygosdk.dart';
 import 'package:tectoyexemplo/pages/paygo_activity.dart';
@@ -132,6 +133,13 @@ List<Map> funcoes = [
     "name": "Scanner Device",
     "page": Scannerp2(
       title: "Scanner Device",
+    )
+  },
+  {
+    "img": "assets/image/function_nfc.png",
+    "name": "NFC",
+    "page": Nfc(
+      title: "NFC",
     )
   },
   {
